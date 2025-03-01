@@ -1,6 +1,6 @@
 Compulsory Project to be Submitted by the Students <br>
 
-◙ Project 2: Guess the Number Game Python Project <br>
+◙ Project 2: Guess the Number Game Python Project  (Computer Version)<br>
 
 ꧁༺ 22/02/2025 ༻꧂ 
 
