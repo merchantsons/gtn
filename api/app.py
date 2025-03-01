@@ -18,7 +18,7 @@ def index():
         session['attempts'] = 0
         return render_template('index.html')
     except Exception as e:
-        return str(e), 500  # Return error for debugging
+        return str(e), 500
 
 @app.route('/guess', methods=['POST'])
 def guess():
@@ -54,15 +54,12 @@ def reset():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Explicitly expose the WSGI app for Vercel
-application = app
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+# Create templates directory if it doesn't exist
+os.makedirs(os.path.join(BASE_DIR, '../templates'), exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, '../static'), exist_ok=True)
 
 # Create HTML template
-with open('templates/index.html', 'w') as f:
+with open(os.path.join(BASE_DIR, '../templates/index.html'), 'w') as f:
     f.write('''
 <!DOCTYPE html>
 <html lang="en">
@@ -71,13 +68,13 @@ with open('templates/index.html', 'w') as f:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guess the Number Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    # <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
- <style>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style>
         :root {
             --primary-color: #384155;
             --secondary-color: #384155;
-            --background-color: #384155;
-            --text-color: #384155;
+            --background-color: #f0f2f5;
+            --text-color: #333;
             --accent-color: #2e502e;
             --error-color: #884147;
         }
@@ -92,8 +89,9 @@ with open('templates/index.html', 'w') as f:
         body {
             background-color: var(--background-color);
             color: var(--text-color);
-            height: 85vh;
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             transition: background-color 0.3s ease;
@@ -105,7 +103,6 @@ with open('templates/index.html', 'w') as f:
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             width: 90%;
-            justify-self: center;
             max-width: 600px;
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -123,17 +120,18 @@ with open('templates/index.html', 'w') as f:
         }
             
         .head1 {
-            color: #fff;            
+            color: var(--primary-color);
             font-weight: 600;
             text-align: center;
             font-size: 3vmin;
             text-decoration: underline;
-            text-decoration-thickness: .5px;
+            text-decoration-thickness: 0.5px;
+            margin-bottom: 0.5rem;
         }
             
         .head2 {
-            color: #fff;
-            margin-top: -.6vmin;
+            color: var(--text-color);
+            margin-top: -0.6vmin;
             text-align: center;
             margin-bottom: 1rem;
             font-weight: 300;
@@ -141,7 +139,7 @@ with open('templates/index.html', 'w') as f:
         }
             
         .footer {
-            color: #fff;
+            color: var(--text-color);
             text-align: center;
             font-size: 1.5vmin;
             margin-top: 2rem;
@@ -297,33 +295,35 @@ with open('templates/index.html', 'w') as f:
     </style>
 </head>
 <body>
- <div>
-    <div style="display: flex; justify-content: center;"><img src="/static/logo.gif" width="200v" height="210" alt="GIAIC LOGO" style="display: block;"></div>
-    <div class="head1">PROJECT 2: GUESS THE NUMBER GAME PYTHON PROJECT</div>
-    <div class="head2">FOR GIAIC Q3 - ROLL # 00037391 BY MERCHANTSONS</div>
-    <div class="container">
-        <h1>Guess the Number</h1>
-        <p class="instructions">I'm thinking of a number between 1 and 100. Can you guess it?</p>
-        
-        <div id="gameSection">
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
-            
-            <div class="input-group">
-                <input type="number" id="guessInput" min="1" max="100" placeholder="Enter your guess">
-                <button id="guessButton">Guess</button>
-            </div>
-            
-            <div id="message"></div>
-            
-            <div class="attempts" id="attemptsCounter">Attempts: 0</div>
-            
-            <button id="reset">Start New Game</button>
+    <div>
+        <div style="display: flex; justify-content: center;">
+            <img src="/static/logo.gif" width="200" height="210" alt="GIAIC LOGO" style="display: block;">
         </div>
+        <div class="head1">PROJECT 2: GUESS THE NUMBER GAME PYTHON PROJECT</div>
+        <div class="head2">FOR GIAIC Q3 - ROLL # 00037391 BY MERCHANTSONS</div>
+        <div class="container">
+            <h1>Guess the Number</h1>
+            <p class="instructions">I'm thinking of a number between 1 and 100. Can you guess it?</p>
+            
+            <div id="gameSection">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                
+                <div class="input-group">
+                    <input type="number" id="guessInput" min="1" max="100" placeholder="Enter your guess">
+                    <button id="guessButton">Guess</button>
+                </div>
+                
+                <div id="message"></div>
+                
+                <div class="attempts" id="attemptsCounter">Attempts: 0</div>
+                
+                <button id="reset">Start New Game</button>
+            </div>
+        </div>
+        <div class="footer">(C) Copyright 2025 Merchantsons. All rights reserved.</div>
     </div>
-    <div class='footer'>(C) Copyright 2025 Merchantsons. All rights reserved.</div>
-</div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const guessInput = document.getElementById('guessInput');
@@ -345,7 +345,7 @@ with open('templates/index.html', 'w') as f:
                 messageEl.textContent = message;
                 messageEl.style.display = 'block';
                 
-                messageEl.className = '';
+                messageEl.className = 'message';
                 messageEl.classList.add(type);
                 
                 if (type === 'correct') {
@@ -424,7 +424,8 @@ with open('templates/index.html', 'w') as f:
 </html>
     ''')
 
+application = app
+
 if __name__ == '__main__':
-    # Suppress the development server warning and run locally
-    os.environ['FLASK_ENV'] = 'development'
-    app.run(host='localhost', port=5000, debug=True, use_reloader=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
