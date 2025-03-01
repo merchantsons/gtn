@@ -232,7 +232,10 @@
 </head>
 <body>
     <div>
-        <div style="display: flex; justify-content: center;"><img src="/static/logo.gif" width="200v" height="210" alt="GIAIC LOGO" style="display: block;"></div>
+        <!-- Use url_for for static files -->
+        <div style="display: flex; justify-content: center;">
+            <img src="{{ url_for('static', filename='logo.gif') }}" width="200px" height="210" alt="GIAIC LOGO" style="display: block;">
+        </div>
         <div class="head1">PROJECT 2: GUESS THE NUMBER GAME PYTHON PROJECT</div>
         <div class="head2">FOR GIAIC Q3 - ROLL # 00037391 BY MERCHANTSONS</div>
         <div class="container">
@@ -256,7 +259,7 @@
                 <button id="reset">Start New Game</button>
             </div>
         </div>
-        <div class='footer'>(C) Copyright 2025 Merchantsons. All rights reserved.</div>
+        <div class="footer">(C) Copyright 2025 Merchantsons. All rights reserved.</div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -278,15 +281,12 @@
             function displayMessage(message, type) {
                 messageEl.textContent = message;
                 messageEl.style.display = 'block';
-                
                 messageEl.className = '';
                 messageEl.classList.add(type);
                 
                 if (type === 'correct') {
                     container.classList.add('celebrate');
-                    setTimeout(() => {
-                        container.classList.remove('celebrate');
-                    }, 500);
+                    setTimeout(() => container.classList.remove('celebrate'), 500);
                 }
             }
             
@@ -305,8 +305,15 @@
                     },
                     body: `guess=${guess}`
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Server error');
+                    return response.json();
+                })
                 .then(data => {
+                    if (data.error) {
+                        displayMessage(data.error, 'too_high');
+                        return;
+                    }
                     attempts = data.attempts;
                     attemptsEl.textContent = `Attempts: ${attempts}`;
                     updateProgressBar();
@@ -317,7 +324,10 @@
                         guessInput.disabled = true;
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    displayMessage('Something went wrong. Please try again.', 'too_high');
+                });
                 
                 guessInput.value = '';
                 guessInput.focus();
@@ -327,8 +337,15 @@
                 fetch('/reset', {
                     method: 'POST'
                 })
-                .then(response => response.json())
-                .then(() => {
+                .then(response => {
+                    if (!response.ok) throw new Error('Server error');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        displayMessage(data.error, 'too_high');
+                        return;
+                    }
                     attempts = 0;
                     attemptsEl.textContent = `Attempts: ${attempts}`;
                     messageEl.style.display = 'none';
@@ -338,17 +355,16 @@
                     guessInput.focus();
                     progressBar.style.width = '0%';
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    displayMessage('Something went wrong. Please try again.', 'too_high');
+                });
             }
             
             guessButton.addEventListener('click', handleGuess);
-            
             guessInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleGuess();
-                }
+                if (e.key === 'Enter') handleGuess();
             });
-            
             resetButton.addEventListener('click', resetGame);
             
             guessInput.focus();
