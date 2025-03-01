@@ -1,14 +1,11 @@
 from flask import Flask, render_template, request, jsonify, session
 import random
 import os
-from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder='./static',  # Relative to api/
+            template_folder='../templates')  # Relative to api/
 app.secret_key = os.urandom(24)
-
-# Create the templates directory if it doesn't exist
-if not os.path.exists('templates'):
-    os.makedirs('templates')
 
 @app.route('/', methods=['GET'])
 def index():
@@ -43,6 +40,10 @@ def reset():
     session['number'] = random.randint(1, 100)
     session['attempts'] = 0
     return jsonify({'message': 'Game reset successfully!'})
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))  # Vercel sets PORT
+    app.run(host='0.0.0.0', port=port, debug=True)
 
 # Create HTML template
 with open('templates/index.html', 'w') as f:
