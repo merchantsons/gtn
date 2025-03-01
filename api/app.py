@@ -70,7 +70,7 @@ with open('templates/index.html', 'w') as f:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guess the Number Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    # <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
  <style>
         :root {
             --primary-color: #384155;
