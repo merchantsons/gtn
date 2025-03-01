@@ -3,7 +3,7 @@ import random
 import os
 
 app = Flask(__name__,
-            static_folder='./static',  # Relative to api/
+            static_folder='../static',  # Relative to api/
             template_folder='../templates')  # Relative to api/
 app.secret_key = os.urandom(24)
 
