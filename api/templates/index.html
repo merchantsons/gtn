@@ -1,52 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session
-import random
-import os
-from datetime import datetime
 
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
-
-# Create the templates directory if it doesn't exist
-if not os.path.exists('templates'):
-    os.makedirs('templates')
-
-@app.route('/', methods=['GET'])
-def index():
-    session['number'] = random.randint(1, 100)
-    session['attempts'] = 0
-    return render_template('index.html')
-
-@app.route('/guess', methods=['POST'])
-def guess():
-    user_guess = int(request.form['guess'])
-    target_number = session.get('number', random.randint(1, 100))
-    session['attempts'] = session.get('attempts', 0) + 1
-    
-    if user_guess < target_number:
-        result = "too_low"
-        message = "Too low! Try a higher number."
-    elif user_guess > target_number:
-        result = "too_high"
-        message = "Too high! Try a lower number."
-    else:
-        result = "correct"
-        message = f"Congratulations! You guessed the number in {session['attempts']} attempts!"
-    
-    return jsonify({
-        'result': result,
-        'message': message,
-        'attempts': session['attempts']
-    })
-
-@app.route('/reset', methods=['POST'])
-def reset():
-    session['number'] = random.randint(1, 100)
-    session['attempts'] = 0
-    return jsonify({'message': 'Game reset successfully!'})
-
-# Create HTML template
-with open('templates/index.html', 'w') as f:
-    f.write('''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,6 +6,7 @@ with open('templates/index.html', 'w') as f:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guess the Number Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
  <style>
         :root {
             --primary-color: #384155;
@@ -74,7 +27,7 @@ with open('templates/index.html', 'w') as f:
         body {
             background-color: var(--background-color);
             color: var(--text-color);
-            height: 100vh;
+            height: 85vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -280,6 +233,7 @@ with open('templates/index.html', 'w') as f:
 </head>
 <body>
  <div>
+    <div style="display: flex; justify-content: center;"><img src="/static/logo.gif" width="200v" height="210" alt="GIAIC LOGO" style="display: block;"></div>
     <div class="head1">PROJECT 2: GUESS THE NUMBER GAME PYTHON PROJECT</div>
     <div class="head2">FOR GIAIC Q3 - ROLL # 00037391 BY MERCHANTSONS</div>
     <div class="container">
@@ -403,9 +357,4 @@ with open('templates/index.html', 'w') as f:
     </script>
 </body>
 </html>
-    ''')
-
-if __name__ == '__main__':
-    # Suppress the development server warning and run locally
-    os.environ['FLASK_ENV'] = 'development'
-    app.run(host='localhost', port=5000, debug=True, use_reloader=True)
+    
